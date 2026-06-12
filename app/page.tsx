@@ -12,22 +12,21 @@ export default function Home() {
   const [results, setResults] = useState<PackageResult[]>([]);
 
   // 파일과 선택된 생태계(ecosystem)를 파라미터로 받음
-  const handleAnalyze = async (file: File, ecosystem: string) => {
+  const handleAnalyze = async (file: File, ecosystem: string, mode: string) => {
     setIsLoading(true);
     setResults([]);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("ecosystem", ecosystem); // 백엔드의 Form(...)으로 매핑됨
+      formData.append("ecosystem", ecosystem);
+      formData.append("mode", mode); // 'online' 또는 'offline'
 
       const response = await axios.post(
         "http://localhost:8000/api/analyze",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         },
       );
 

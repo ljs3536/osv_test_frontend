@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 
-// onAnalyze에 ecosystem 파라미터 추가
 interface FileUploadProps {
-  onAnalyze: (file: File, ecosystem: string) => void;
+  onAnalyze: (file: File, ecosystem: string, mode: string) => void;
   isLoading: boolean;
 }
 
 export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [ecosystem, setEcosystem] = useState<string>("pypi");
+  const [ecosystem, setEcosystem] = useState<string>("npm");
+  const [scanMode, setScanMode] = useState<string>("online"); // 온라인/오프라인 상태 추가
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -20,7 +20,7 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
 
   const handleSubmit = () => {
     if (selectedFile) {
-      onAnalyze(selectedFile, ecosystem);
+      onAnalyze(selectedFile, ecosystem, scanMode);
     }
   };
 
@@ -30,8 +30,8 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
         의존성 파일 업로드
       </h2>
 
-      {/* 생태계 선택 라디오 버튼 */}
-      <div className="flex gap-4 mb-6">
+      {/* 생태계 선택 */}
+      <div className="flex gap-4 mb-4">
         <label
           className={`flex-1 flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${ecosystem === "pypi" ? "bg-blue-50 border-blue-500 text-blue-700 font-semibold" : "hover:bg-gray-50"}`}
         >
@@ -43,7 +43,7 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
             checked={ecosystem === "pypi"}
             onChange={() => setEcosystem("pypi")}
           />
-          Python (requirements.txt)
+          Python (pypi)
         </label>
         <label
           className={`flex-1 flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${ecosystem === "npm" ? "bg-blue-50 border-blue-500 text-blue-700 font-semibold" : "hover:bg-gray-50"}`}
@@ -56,7 +56,7 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
             checked={ecosystem === "npm"}
             onChange={() => setEcosystem("npm")}
           />
-          Node.js (package.json)
+          Node.js (npm)
         </label>
         <label
           className={`flex-1 flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${ecosystem === "maven" ? "bg-blue-50 border-blue-500 text-blue-700 font-semibold" : "hover:bg-gray-50"}`}
@@ -69,7 +69,37 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
             checked={ecosystem === "maven"}
             onChange={() => setEcosystem("maven")}
           />
-          Java (pom.xml)
+          Java (maven)
+        </label>
+      </div>
+
+      {/* 스캔 모드 선택 (Online / Offline) */}
+      <div className="flex gap-4 mb-6">
+        <label
+          className={`flex-1 flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${scanMode === "online" ? "bg-green-50 border-green-500 text-green-700 font-semibold" : "hover:bg-gray-50"}`}
+        >
+          <input
+            type="radio"
+            name="scanMode"
+            value="online"
+            className="hidden"
+            checked={scanMode === "online"}
+            onChange={() => setScanMode("online")}
+          />
+          🌐 온라인 API 스캔
+        </label>
+        <label
+          className={`flex-1 flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${scanMode === "offline" ? "bg-indigo-50 border-indigo-500 text-indigo-700 font-semibold" : "hover:bg-gray-50"}`}
+        >
+          <input
+            type="radio"
+            name="scanMode"
+            value="offline"
+            className="hidden"
+            checked={scanMode === "offline"}
+            onChange={() => setScanMode("offline")}
+          />
+          💾 오프라인 로컬 스캔
         </label>
       </div>
 
@@ -96,14 +126,24 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
 
       <button
         onClick={handleSubmit}
-        disabled={!selectedFile || isLoading}
+        disabled={
+          !selectedFile ||
+          isLoading ||
+          (scanMode === "offline" && ecosystem === "pypi")
+        }
         className={`mt-4 w-full py-3 rounded-lg font-bold text-white transition-colors ${
-          !selectedFile || isLoading
+          !selectedFile ||
+          isLoading ||
+          (scanMode === "offline" && ecosystem === "pypi")
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {isLoading ? "스캐닝 진행 중..." : "취약점 분석 시작"}
+        {scanMode === "offline" && ecosystem === "pypi"
+          ? "PyPI 오프라인 데이터 없음"
+          : isLoading
+            ? "스캐닝 진행 중..."
+            : "취약점 분석 시작"}
       </button>
     </div>
   );
