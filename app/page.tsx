@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -12,16 +11,16 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<PackageResult[]>([]);
 
-  const handleAnalyze = async (file: File) => {
+  // 파일과 선택된 생태계(ecosystem)를 파라미터로 받음
+  const handleAnalyze = async (file: File, ecosystem: string) => {
     setIsLoading(true);
-    setResults([]); // 새로운 분석 시작 시 기존 결과 초기화
+    setResults([]);
 
     try {
-      // 1. FormData에 파일 담기 (multipart/form-data)
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("ecosystem", ecosystem); // 백엔드의 Form(...)으로 매핑됨
 
-      // 2. FastAPI 백엔드로 POST 요청
       const response = await axios.post(
         "http://localhost:8000/api/analyze",
         formData,
@@ -32,7 +31,6 @@ export default function Home() {
         },
       );
 
-      // 3. 결과 업데이트
       setResults(response.data.results);
     } catch (error) {
       console.error("분석 실패:", error);
@@ -47,10 +45,11 @@ export default function Home() {
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-            OSV 취약점 스캐너
+            OSV 멀티 스캐너
           </h1>
           <p className="text-lg text-gray-600">
-            의존성 파일을 업로드하고 알려진 오픈소스 취약점을 즉시 확인하세요.
+            Python, Node.js, Java 의존성 파일을 업로드하고 취약점을 즉시
+            확인하세요.
           </p>
         </div>
 
