@@ -126,24 +126,18 @@ export default function FileUpload({ onAnalyze, isLoading }: FileUploadProps) {
 
       <button
         onClick={handleSubmit}
-        disabled={
-          !selectedFile ||
-          isLoading ||
-          (scanMode === "offline" && ecosystem === "pypi")
-        }
+        disabled={!selectedFile || isLoading}
         className={`mt-4 w-full py-3 rounded-lg font-bold text-white transition-colors ${
-          !selectedFile ||
-          isLoading ||
-          (scanMode === "offline" && ecosystem === "pypi")
+          !selectedFile || isLoading
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {scanMode === "offline" && ecosystem === "pypi"
-          ? "PyPI 오프라인 데이터 없음"
+        {scanMode === "offline"
+          ? "오프라인 취약점 분석 시작"
           : isLoading
             ? "스캐닝 진행 중..."
-            : "취약점 분석 시작"}
+            : "온라인 취약점 분석 시작"}
       </button>
     </div>
   );
